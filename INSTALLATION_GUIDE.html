@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Installation Guide - Electronics Lab Management System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; margin-top: 30px; }
+        h3 { color: #7f8c8d; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #3498db; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        code { background-color: #f4f4f4; padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }
+        pre { background-color: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        pre code { background-color: transparent; color: inherit; }
+        hr { border: none; border-top: 2px solid #ecf0f1; margin: 30px 0; }
+        blockquote { border-left: 4px solid #3498db; margin: 20px 0; padding-left: 20px; color: #666; }
+        @media print {
+            body { margin: 0; padding: 20px; }
+            pre { white-space: pre-wrap; }
+        }
+    </style>
+</head>
+<body>
+<h1>Installation Guide</h1>
+<h2>Automated Electronics Laboratory Management System</h2>
+<hr />
+<h2>Prerequisites</h2>
+<p>Before installing this application, ensure you have the following software installed on your system:</p>
+<h3>1. Python (Version 3.10 or higher)</h3>
+<p><strong>Download:</strong> https://www.python.org/downloads/</p>
+<p><strong>Installation Steps (Windows):</strong>
+1. Download the latest Python installer
+2. Run the installer
+3. ✅ <strong>IMPORTANT:</strong> Check "Add Python to PATH" during installation
+4. Click "Install Now"
+5. Verify installation by opening Command Prompt and typing:
+   <code>bash
+   python --version</code></p>
+<h3>2. MySQL Server (Version 8.0 or higher)</h3>
+<p><strong>Download:</strong> https://dev.mysql.com/downloads/mysql/</p>
+<p><strong>Alternative (Easier):</strong> Install <strong>XAMPP</strong> which includes MySQL
+- Download from: https://www.apachefriends.org/download.html</p>
+<p><strong>Installation Steps (XAMPP - Recommended):</strong>
+1. Download XAMPP installer
+2. Run and install XAMPP
+3. Open XAMPP Control Panel
+4. Start <strong>MySQL</strong> service</p>
+<hr />
+<h2>Installation Steps</h2>
+<h3>Step 1: Copy the Project Folder</h3>
+<p>Copy the entire project folder <code>lohit's project</code> to any location on the new computer.</p>
+<p><strong>Example:</strong> <code>C:\Projects\lab-management-system\</code></p>
+<hr />
+<h3>Step 2: Open Command Prompt / Terminal</h3>
+<p><strong>Windows:</strong>
+1. Press <code>Win + R</code>
+2. Type <code>cmd</code> and press Enter
+3. Navigate to the project folder:
+   <code>bash
+   cd "C:\Projects\lab-management-system"</code></p>
+<p><strong>OR</strong> Right-click inside the project folder while holding Shift, then select "Open in Terminal"</p>
+<hr />
+<h3>Step 3: Create a Virtual Environment (Recommended)</h3>
+<pre><code class="language-bash">python -m venv venv
+</code></pre>
+<p><strong>Activate the virtual environment:</strong></p>
+<p><strong>Windows:</strong></p>
+<pre><code class="language-bash">venv\Scripts\activate
+</code></pre>
+<p><strong>Linux/Mac:</strong></p>
+<pre><code class="language-bash">source venv/bin/activate
+</code></pre>
+<p>You should see <code>(venv)</code> at the beginning of your command prompt.</p>
+<hr />
+<h3>Step 4: Install Required Python Packages</h3>
+<pre><code class="language-bash">pip install -r requirements.txt
+</code></pre>
+<p>This will install:
+- Flask (Web Framework)
+- mysql-connector-python (Database Connector)
+- Werkzeug (Security utilities)</p>
+<hr />
+<h3>Step 5: Configure the Database Connection</h3>
+<ol>
+<li>
+<p>Open the file <code>config.py</code> in any text editor (Notepad, VS Code, etc.)</p>
+</li>
+<li>
+<p>Update the database settings to match your MySQL installation:</p>
+</li>
+</ol>
+<pre><code class="language-python">DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',              # Your MySQL username
+    'password': '',              # Your MySQL password (leave empty if none)
+    'database': 'lab_management',
+    'autocommit': False
+}
+</code></pre>
+<p><strong>Common configurations:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setup</th>
+<th>User</th>
+<th>Password</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XAMPP (default)</td>
+<td><code>root</code></td>
+<td>`` (empty)</td>
+</tr>
+<tr>
+<td>WAMP (default)</td>
+<td><code>root</code></td>
+<td>`` (empty)</td>
+</tr>
+<tr>
+<td>MySQL standalone</td>
+<td><code>root</code></td>
+<td>Your password</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Step 6: Set Up the Database</h3>
+<p><strong>Option A: Using the Setup Script</strong></p>
+<pre><code class="language-bash">python setup_database.py
+</code></pre>
+<p><strong>Option B: Manual Setup (if Option A fails)</strong></p>
+<ol>
+<li>
+<p>Open MySQL command line or phpMyAdmin (http://localhost/phpmyadmin)</p>
+</li>
+<li>
+<p>Run the following SQL command to create the database:
+   <code>sql
+   CREATE DATABASE IF NOT EXISTS lab_management;</code></p>
+</li>
+<li>
+<p>Select the database:
+   <code>sql
+   USE lab_management;</code></p>
+</li>
+<li>
+<p>Copy and execute the contents of <code>database/schema.sql</code></p>
+</li>
+</ol>
+<hr />
+<h3>Step 7: Run the Application</h3>
+<pre><code class="language-bash">python app.py
+</code></pre>
+<p>You should see output like:</p>
+<pre><code> * Running on http://127.0.0.1:5000
+ * Debug mode: on
+</code></pre>
+<hr />
+<h3>Step 8: Access the Application</h3>
+<ol>
+<li>Open any web browser (Chrome, Firefox, Edge, etc.)</li>
+<li>Go to: <strong>http://127.0.0.1:5000</strong> or <strong>http://localhost:5000</strong></li>
+</ol>
+<hr />
+<h2>Default Login Credentials</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Email</strong></td>
+<td>admin@lab.edu</td>
+</tr>
+<tr>
+<td><strong>Password</strong></td>
+<td>admin123</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Troubleshooting</h2>
+<h3>Issue: "Module not found" error</h3>
+<p><strong>Solution:</strong> Make sure you activated the virtual environment and installed requirements:</p>
+<pre><code class="language-bash">venv\Scripts\activate
+pip install -r requirements.txt
+</code></pre>
+<h3>Issue: Database connection failed</h3>
+<p><strong>Solutions:</strong>
+1. Ensure MySQL service is running (check XAMPP Control Panel)
+2. Verify username and password in <code>config.py</code>
+3. Make sure the database <code>lab_management</code> exists</p>
+<h3>Issue: Port 5000 is already in use</h3>
+<p><strong>Solution:</strong> Edit <code>config.py</code> and change the PORT:</p>
+<pre><code class="language-python">PORT = 5001  # or any other available port
+</code></pre>
+<h3>Issue: Python is not recognized</h3>
+<p><strong>Solution:</strong> Python was not added to PATH during installation
+- Reinstall Python and check "Add Python to PATH"
+- Or manually add Python to system PATH</p>
+<hr />
+<h2>Stopping the Application</h2>
+<p>To stop the running server:
+- Press <code>Ctrl + C</code> in the command prompt</p>
+<hr />
+<h2>Quick Reference Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Navigate to project</td>
+<td><code>cd "path/to/project"</code></td>
+</tr>
+<tr>
+<td>Activate virtual env</td>
+<td><code>venv\Scripts\activate</code></td>
+</tr>
+<tr>
+<td>Install dependencies</td>
+<td><code>pip install -r requirements.txt</code></td>
+</tr>
+<tr>
+<td>Setup database</td>
+<td><code>python setup_database.py</code></td>
+</tr>
+<tr>
+<td>Run application</td>
+<td><code>python app.py</code></td>
+</tr>
+<tr>
+<td>Stop application</td>
+<td><code>Ctrl + C</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Contact &amp; Support</h2>
+<p>For any issues or questions, please contact the project team.</p>
+<hr />
+<p><strong>Document Version:</strong> 1.0<br />
+<strong>Last Updated:</strong> January 2026</p>
+</body>
+</html>

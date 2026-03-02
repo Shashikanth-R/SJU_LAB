@@ -1,0 +1,205 @@
+{% extends "dashboard_layout.html" %}
+{% set page_title = "Inventory Management" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-boxes"></i> Equipment Inventory</h1>
+    <p>Manage laboratory equipment and components</p>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <h3>Equipment List</h3>
+        <button class="btn btn-primary" onclick="openModal('addEquipmentModal')">
+            <i class="fas fa-plus"></i> Add Equipment
+        </button>
+    </div>
+    <div class="card-body">
+        <!-- Search and Filter -->
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="search-bar" style="flex: 1;">
+                <i class="fas fa-search"></i>
+                <form method="GET" action="{{ url_for('inventory') }}">
+                    <input type="text" name="search" placeholder="Search equipment..." value="{{ search_term }}">
+                </form>
+            </div>
+            <form method="GET" action="{{ url_for('inventory') }}">
+                <select name="category" class="form-control" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.category }}" {{ 'selected' if current_category==cat.category else '' }}>
+                        {{ cat.category }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <!-- Equipment Table -->
+        {% if equipment_list %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Model</th>
+                        <th>Availability</th>
+                        <th>Condition</th>
+                        <th>Location</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for equipment in equipment_list %}
+                    <tr>
+                        <td>{{ equipment.equipment_id }}</td>
+                        <td><strong>{{ equipment.name }}</strong></td>
+                        <td>{{ equipment.category }}</td>
+                        <td>{{ equipment.model_number }}</td>
+                        <td>
+                            <span
+                                class="badge badge-{{ 'success' if equipment.available_quantity > 5 else 'warning' if equipment.available_quantity > 0 else 'danger' }}">
+                                {{ equipment.available_quantity }}/{{ equipment.total_quantity }}
+                            </span>
+                        </td>
+                        <td>
+                            <span
+                                class="badge badge-{{ 'success' if equipment.condition_status == 'good' else 'warning' if equipment.condition_status == 'fair' else 'danger' }}">
+                                {{ equipment.condition_status|title }}
+                            </span>
+                        </td>
+                        <td>{{ equipment.location }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick='editEquipment({{ equipment|tojson }})'>
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="{{ url_for('delete_equipment', equipment_id=equipment.equipment_id) }}"
+                                class="btn btn-sm btn-danger" onclick="return confirmDelete('Delete this equipment?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h3>No Equipment Found</h3>
+            <p>Add equipment to get started</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Equipment Modal -->
+<div class="modal" id="addEquipmentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus"></i> Add New Equipment</h3>
+            <button class="close-modal" onclick="closeModal('addEquipmentModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('add_equipment') }}" data-validate>
+            <div class="form-group">
+                <label class="form-label">Equipment Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <input type="text" name="category" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Model Number</label>
+                <input type="text" name="model_number" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Quantity</label>
+                <input type="number" name="quantity" class="form-control" min="1" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Location</label>
+                <input type="text" name="location" class="form-control" required>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success" style="flex: 1;">
+                    <i class="fas fa-save"></i> Add Equipment
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addEquipmentModal')">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Equipment Modal -->
+<div class="modal" id="editEquipmentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Equipment</h3>
+            <button class="close-modal" onclick="closeModal('editEquipmentModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form method="POST" id="editEquipmentForm" data-validate>
+            <div class="form-group">
+                <label class="form-label">Equipment Name</label>
+                <input type="text" name="name" id="edit_name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <input type="text" name="category" id="edit_category" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Model Number</label>
+                <input type="text" name="model_number" id="edit_model" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Total Quantity</label>
+                <input type="number" name="quantity" id="edit_quantity" class="form-control" min="1" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Location</label>
+                <input type="text" name="location" id="edit_location" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Condition Status</label>
+                <select name="condition_status" id="edit_condition" class="form-control" required>
+                    <option value="good">Good</option>
+                    <option value="fair">Fair</option>
+                    <option value="damaged">Damaged</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success" style="flex: 1;">
+                    <i class="fas fa-save"></i> Update Equipment
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editEquipmentModal')">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function editEquipment(equipment) {
+        document.getElementById('edit_name').value = equipment.name;
+        document.getElementById('edit_category').value = equipment.category;
+        document.getElementById('edit_model').value = equipment.model_number;
+        document.getElementById('edit_quantity').value = equipment.total_quantity;
+        document.getElementById('edit_location').value = equipment.location;
+        document.getElementById('edit_condition').value = equipment.condition_status;
+
+        const form = document.getElementById('editEquipmentForm');
+        form.action = `/inventory/edit/${equipment.equipment_id}`;
+
+        openModal('editEquipmentModal');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "dashboard_layout.html" %}
+{% set page_title = "Student Management" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-user-graduate"></i> Student Management</h1>
+    <p>Manage student records and track usage history</p>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <h3>Students List</h3>
+        <button class="btn btn-primary" onclick="openModal('addStudentModal')">
+            <i class="fas fa-plus"></i> Add Student
+        </button>
+    </div>
+    <div class="card-body">
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <form method="GET" action="{{ url_for('students') }}">
+                <input type="text" name="search" placeholder="Search students by ID, name, or department..."
+                    value="{{ search_term }}">
+            </form>
+        </div>
+
+        <!-- Students Table -->
+        {% if student_list %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Department</th>
+                        <th>Year</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in student_list %}
+                    <tr>
+                        <td><strong>{{ student.student_id }}</strong></td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.phone }}</td>
+                        <td>{{ student.department }}</td>
+                        <td>Year {{ student.year }}</td>
+                        <td>
+                            <a href="{{ url_for('student_history', student_id=student.student_id) }}"
+                                class="btn btn-sm btn-info">
+                                <i class="fas fa-history"></i>
+                            </a>
+                            <button class="btn btn-sm btn-warning" onclick='editStudent({{ student|tojson }})'>
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="{{ url_for('delete_student', student_id=student.student_id) }}"
+                                class="btn btn-sm btn-danger" onclick="return confirmDelete('Delete this student?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-user-slash"></i>
+            <h3>No Students Found</h3>
+            <p>Add students to get started</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal" id="addStudentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus"></i> Add New Student</h3>
+            <button class="close-modal" onclick="closeModal('addStudentModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('add_student') }}" data-validate>
+            <div class="form-group">
+                <label class="form-label">Student ID</label>
+                <input type="text" name="student_id" class="form-control" placeholder="ECE2021001" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input type="tel" name="phone" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Department</label>
+                <select name="department" class="form-control" required>
+                    <option value="">Select Department</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="Mechanical">Mechanical</option>
+                    <option value="Civil">Civil</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Year</label>
+                <select name="year" class="form-control" required>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success" style="flex: 1;">
+                    <i class="fas fa-save"></i> Add Student
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addStudentModal')">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Student Modal -->
+<div class="modal" id="editStudentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Student</h3>
+            <button class="close-modal" onclick="closeModal('editStudentModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form method="POST" id="editStudentForm" data-validate>
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="name" id="edit_name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" id="edit_email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input type="tel" name="phone" id="edit_phone" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Department</label>
+                <select name="department" id="edit_department" class="form-control" required>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="Mechanical">Mechanical</option>
+                    <option value="Civil">Civil</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Year</label>
+                <select name="year" id="edit_year" class="form-control" required>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success" style="flex: 1;">
+                    <i class="fas fa-save"></i> Update Student
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editStudentModal')">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function editStudent(student) {
+        document.getElementById('edit_name').value = student.name;
+        document.getElementById('edit_email').value = student.email;
+        document.getElementById('edit_phone').value = student.phone;
+        document.getElementById('edit_department').value = student.department;
+        document.getElementById('edit_year').value = student.year;
+
+        const form = document.getElementById('editStudentForm');
+        form.action = `/students/edit/${student.student_id}`;
+
+        openModal('editStudentModal');
+    }
+</script>
+{% endblock %}

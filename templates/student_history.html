@@ -1,0 +1,96 @@
+{% extends "dashboard_layout.html" %}
+{% set page_title = "Student History" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-history"></i> Student Usage History</h1>
+    <p>Detailed equipment usage history for {{ student.name }}</p>
+</div>
+
+<!-- Student Info Card -->
+<div class="content-card" style="margin-bottom: 2rem;">
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+            <div>
+                <p style="color: var(--gray); margin-bottom: 0.25rem;">Student ID</p>
+                <h3 style="margin: 0;">{{ student.student_id }}</h3>
+            </div>
+            <div>
+                <p style="color: var(--gray); margin-bottom: 0.25rem;">Name</p>
+                <h3 style="margin: 0;">{{ student.name }}</h3>
+            </div>
+            <div>
+                <p style="color: var(--gray); margin-bottom: 0.25rem;">Department</p>
+                <h3 style="margin: 0;">{{ student.department }}</h3>
+            </div>
+            <div>
+                <p style="color: var(--gray); margin-bottom: 0.25rem;">Email</p>
+                <h3 style="margin: 0; font-size: 1.1rem;">{{ student.email }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- History Table -->
+<div class="content-card">
+    <div class="card-header">
+        <h3><i class="fas fa-list"></i> Equipment Issue History</h3>
+        <a href="{{ url_for('students') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Students
+        </a>
+    </div>
+    <div class="card-body">
+        {% if history %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Issue ID</th>
+                        <th>Equipment</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Issue Date</th>
+                        <th>Expected Return</th>
+                        <th>Actual Return</th>
+                        <th>Issued By</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in history %}
+                    <tr>
+                        <td><strong>#{{ record.issue_id }}</strong></td>
+                        <td>{{ record.equipment_name }}</td>
+                        <td>{{ record.category }}</td>
+                        <td>{{ record.quantity }}</td>
+                        <td>{{ record.issue_date.strftime('%b %d, %Y %I:%M %p') }}</td>
+                        <td>{{ record.expected_return_date.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            {% if record.actual_return_date %}
+                            {{ record.actual_return_date.strftime('%b %d, %Y %I:%M %p') }}
+                            {% else %}
+                            <span style="color: var(--gray);">Not returned</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ record.issued_by_name }}</td>
+                        <td>
+                            <span
+                                class="badge badge-{{ 'success' if record.status == 'returned' else 'warning' if record.status == 'issued' else 'danger' }}">
+                                {{ record.status|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h3>No History Found</h3>
+            <p>This student has not issued any equipment yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

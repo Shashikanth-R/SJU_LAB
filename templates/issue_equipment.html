@@ -1,0 +1,158 @@
+{% extends "dashboard_layout.html" %}
+{% set page_title = "Issue & Return" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-exchange-alt"></i> Issue & Return Equipment</h1>
+    <p>Manage equipment checkout and returns</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Issue Equipment Card -->
+    <div class="content-card">
+        <div class="card-header">
+            <h3><i class="fas fa-arrow-right"></i> Issue Equipment</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('issue_equipment') }}" data-validate>
+                <div class="form-group">
+                    <label class="form-label">Select Student</label>
+                    <select name="student_id" class="form-control" required>
+                        <option value="">Choose student...</option>
+                        {% for student in students %}
+                        <option value="{{ student.student_id }}">
+                            {{ student.student_id }} - {{ student.name }} ({{ student.department }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Equipment</label>
+                    <select name="equipment_id" class="form-control" required onchange="showAvailability(this.value)">
+                        <option value="">Choose equipment...</option>
+                        {% for equip in equipment_list %}
+                        <option value="{{ equip.equipment_id }}" data-available="{{ equip.available_quantity }}">
+                            {{ equip.name }} - Available: {{ equip.available_quantity }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <small id="availabilityInfo" style="color: var(--gray);"></small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Quantity</label>
+                    <input type="number" name="quantity" class="form-control" min="1" value="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Return After (Days)</label>
+                    <input type="number" name="days" class="form-control" min="1" value="7" required>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%;">
+                    <i class="fas fa-check"></i> Issue Equipment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div>
+        <div class="stat-card success" style="margin-bottom: 1rem;">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>{{ active_issues|length }}</h3>
+            <p>Currently Issued</p>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-icon">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <h3>{{ students|length }}</h3>
+            <p>Active Students</p>
+        </div>
+    </div>
+</div>
+
+<!-- Active Issues -->
+<div class="content-card">
+    <div class="card-header">
+        <h3><i class="fas fa-list"></i> Active Issues</h3>
+    </div>
+    <div class="card-body">
+        {% if active_issues %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Issue ID</th>
+                        <th>Student</th>
+                        <th>Equipment</th>
+                        <th>Quantity</th>
+                        <th>Issue Date</th>
+                        <th>Expected Return</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for issue in active_issues %}
+                    <tr>
+                        <td><strong>#{{ issue.issue_id }}</strong></td>
+                        <td>{{ issue.student_name }}</td>
+                        <td>{{ issue.equipment_name }}</td>
+                        <td>{{ issue.quantity }}</td>
+                        <td>{{ issue.issue_date.strftime('%b %d, %Y') }}</td>
+                        <td>{{ issue.expected_return_date.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <span class="badge badge-{{ 'warning' if issue.status == 'issued' else 'danger' }}">
+                                {{ issue.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('return_equipment', issue_id=issue.issue_id) }}"
+                                class="btn btn-sm btn-success"
+                                onclick="return confirm('Mark this equipment as returned?')">
+                                <i class="fas fa-undo"></i> Return
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h3>No Active Issues</h3>
+            <p>All equipment has been returned</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function showAvailability(equipmentId) {
+        const select = document.querySelector('select[name="equipment_id"]');
+        const option = select.querySelector(`option[value="${equipmentId}"]`);
+        const info = document.getElementById('availabilityInfo');
+
+        if (option) {
+            const available = option.getAttribute('data-available');
+            if (parseInt(available) === 0) {
+                info.textContent = '⚠️ Out of stock!';
+                info.style.color = 'var(--danger)';
+            } else if (parseInt(available) <= 5) {
+                info.textContent = `⚠️ Low stock: ${available} available`;
+                info.style.color = 'var(--warning)';
+            } else {
+                info.textContent = `✓ ${available} units available`;
+                info.style.color = 'var(--success)';
+            }
+        }
+    }
+</script>
+{% endblock %}

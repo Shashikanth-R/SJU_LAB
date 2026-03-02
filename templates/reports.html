@@ -1,0 +1,211 @@
+{% extends "dashboard_layout.html" %}
+{% set page_title = "Reports" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-chart-bar"></i> Reports & Analytics</h1>
+    <p>Generate comprehensive reports for laboratory activities</p>
+</div>
+
+<!-- Report Type Selection -->
+<div class="content-card" style="margin-bottom: 2rem;">
+    <div class="card-body">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{{ url_for('reports', type='inventory') }}"
+                class="btn {{ 'btn-primary' if report_type == 'inventory' else 'btn-secondary' }}">
+                <i class="fas fa-boxes"></i> Inventory Summary
+            </a>
+            <a href="{{ url_for('reports', type='usage') }}"
+                class="btn {{ 'btn-primary' if report_type == 'usage' else 'btn-secondary' }}">
+                <i class="fas fa-chart-line"></i> Usage Statistics
+            </a>
+            <a href="{{ url_for('reports', type='students') }}"
+                class="btn {{ 'btn-primary' if report_type == 'students' else 'btn-secondary' }}">
+                <i class="fas fa-user-graduate"></i> Student Usage
+            </a>
+            <a href="{{ url_for('reports', type='maintenance') }}"
+                class="btn {{ 'btn-primary' if report_type == 'maintenance' else 'btn-secondary' }}">
+                <i class="fas fa-tools"></i> Maintenance Report
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Report Content -->
+<div class="content-card">
+    <div class="card-header">
+        <h3>
+            {% if report_type == 'inventory' %}
+            <i class="fas fa-boxes"></i> Inventory Summary Report
+            {% elif report_type == 'usage' %}
+            <i class="fas fa-chart-line"></i> Equipment Usage Statistics
+            {% elif report_type == 'students' %}
+            <i class="fas fa-user-graduate"></i> Student Usage Report
+            {% elif report_type == 'maintenance' %}
+            <i class="fas fa-tools"></i> Maintenance Report
+            {% endif %}
+        </h3>
+        <button class="btn btn-success" onclick="window.print()">
+            <i class="fas fa-print"></i> Print Report
+        </button>
+    </div>
+    <div class="card-body">
+        {% if data %}
+
+        <!-- Inventory Report -->
+        {% if report_type == 'inventory' %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Item Count</th>
+                        <th>Total Items</th>
+                        <th>Available</th>
+                        <th>Issued</th>
+                        <th>Availability %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td><strong>{{ row.category }}</strong></td>
+                        <td>{{ row.item_count }}</td>
+                        <td>{{ row.total_items }}</td>
+                        <td>
+                            <span class="badge badge-success">{{ row.available_items }}</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-warning">{{ row.issued_items }}</span>
+                        </td>
+                        <td>
+                            {% set availability_pct = (row.available_items / row.total_items * 100) if row.total_items >
+                            0 else 0 %}
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div
+                                    style="flex: 1; height: 8px; background: var(--gray-light); border-radius: 4px; overflow: hidden;">
+                                    <div
+                                        style="width: {{ availability_pct }}%; height: 100%; background: {{ 'var(--success)' if availability_pct > 50 else 'var(--warning)' if availability_pct > 20 else 'var(--danger)' }};">
+                                    </div>
+                                </div>
+                                <span style="font-size: 0.85rem; color: var(--gray);">{{ "%.1f"|format(availability_pct)
+                                    }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Usage Statistics Report -->
+        {% if report_type == 'usage' %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Equipment Name</th>
+                        <th>Category</th>
+                        <th>Times Issued</th>
+                        <th>Total Quantity Issued</th>
+                        <th>Popularity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td><strong>{{ row.equipment_name }}</strong></td>
+                        <td>{{ row.category }}</td>
+                        <td>{{ row.times_issued or 0 }}</td>
+                        <td>{{ row.total_quantity_issued or 0 }}</td>
+                        <td>
+                            {% set max_usage = data|map(attribute='times_issued')|max or 1 %}
+                            {% set usage_pct = (row.times_issued / max_usage * 100) if row.times_issued else 0 %}
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div
+                                    style="flex: 1; height: 8px; background: var(--gray-light); border-radius: 4px; overflow: hidden;">
+                                    <div style="width: {{ usage_pct }}%; height: 100%; background: var(--primary);">
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Student Usage Report -->
+        {% if report_type == 'students' %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Total Issues</th>
+                        <th>Returned</th>
+                        <th>Active</th>
+                        <th>Overdue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td><strong>{{ row.student_id }}</strong></td>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.department }}</td>
+                        <td>{{ row.total_issues or 0 }}</td>
+                        <td><span class="badge badge-success">{{ row.returned or 0 }}</span></td>
+                        <td><span class="badge badge-warning">{{ row.active or 0 }}</span></td>
+                        <td><span class="badge badge-danger">{{ row.overdue or 0 }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Maintenance Report -->
+        {% if report_type == 'maintenance' %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Equipment Name</th>
+                        <th>Category</th>
+                        <th>Maintenance Count</th>
+                        <th>Total Cost</th>
+                        <th>Completed</th>
+                        <th>Pending</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                    <tr>
+                        <td><strong>{{ row.equipment_name }}</strong></td>
+                        <td>{{ row.category }}</td>
+                        <td>{{ row.maintenance_count or 0 }}</td>
+                        <td><strong>₹{{ row.total_cost or 0 }}</strong></td>
+                        <td><span class="badge badge-success">{{ row.completed or 0 }}</span></td>
+                        <td><span class="badge badge-danger">{{ row.pending or 0 }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-chart-bar"></i>
+            <h3>No Data Available</h3>
+            <p>No data to display for this report</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

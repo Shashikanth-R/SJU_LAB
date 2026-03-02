@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Project Report - Electronics Lab Management System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; margin-top: 30px; }
+        h3 { color: #7f8c8d; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #3498db; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        code { background-color: #f4f4f4; padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }
+        pre { background-color: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        pre code { background-color: transparent; color: inherit; }
+        hr { border: none; border-top: 2px solid #ecf0f1; margin: 30px 0; }
+        blockquote { border-left: 4px solid #3498db; margin: 20px 0; padding-left: 20px; color: #666; }
+        @media print {
+            body { margin: 0; padding: 20px; }
+            pre { white-space: pre-wrap; }
+        }
+    </style>
+</head>
+<body>
+<h1>Automated Electronics Laboratory Management System</h1>
+<h2>Project Report</h2>
+<hr />
+<h2>1. Abstract</h2>
+<p>The <strong>Automated Electronics Laboratory Management System</strong> is a web-based application designed to streamline the management of electronics laboratory equipment, student records, and maintenance activities. This system eliminates manual record-keeping by providing digital tracking of equipment inventory, issue/return operations, and maintenance logs.</p>
+<hr />
+<h2>2. Introduction</h2>
+<h3>2.1 Problem Statement</h3>
+<p>Traditional laboratory management relies on manual registers and paper-based tracking, leading to:
+- Equipment loss and mismanagement
+- Difficulty in tracking student borrowings
+- No real-time inventory visibility
+- Delayed maintenance reporting
+- Inefficient reporting and analytics</p>
+<h3>2.2 Proposed Solution</h3>
+<p>A comprehensive web application that provides:
+- <strong>Real-time inventory tracking</strong> of laboratory equipment
+- <strong>Digital issue/return system</strong> for student equipment borrowing
+- <strong>Student management</strong> with borrowing history
+- <strong>Maintenance logging</strong> and tracking
+- <strong>Analytics and reports</strong> for informed decision-making</p>
+<hr />
+<h2>3. Technology Stack</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Technology</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Backend Framework</strong></td>
+<td>Python Flask 3.0+</td>
+<td>Web server and routing</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>MySQL 8.0</td>
+<td>Data storage and management</td>
+</tr>
+<tr>
+<td><strong>Database Connector</strong></td>
+<td>mysql-connector-python</td>
+<td>Python-MySQL communication</td>
+</tr>
+<tr>
+<td><strong>Frontend</strong></td>
+<td>HTML5, CSS3, JavaScript</td>
+<td>User interface</td>
+</tr>
+<tr>
+<td><strong>Template Engine</strong></td>
+<td>Jinja2</td>
+<td>Dynamic HTML rendering</td>
+</tr>
+<tr>
+<td><strong>Icons</strong></td>
+<td>Font Awesome 6.4</td>
+<td>UI icons</td>
+</tr>
+<tr>
+<td><strong>Fonts</strong></td>
+<td>Google Fonts (Inter)</td>
+<td>Typography</td>
+</tr>
+<tr>
+<td><strong>Security</strong></td>
+<td>Werkzeug</td>
+<td>Password hashing, session management</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>4. System Architecture</h2>
+<pre><code>┌──────────────────────────────────────────────────────────┐
+│                     CLIENT (Browser)                      │
+│              HTML + CSS + JavaScript                      │
+└─────────────────────────┬────────────────────────────────┘
+                          │ HTTP Requests
+                          ▼
+┌──────────────────────────────────────────────────────────┐
+│                   FLASK APPLICATION                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
+│  │   Routes    │  │  Templates  │  │   Models    │       │
+│  │  (app.py)   │  │  (Jinja2)   │  │  (Python)   │       │
+│  └─────────────┘  └─────────────┘  └─────────────┘       │
+└─────────────────────────┬────────────────────────────────┘
+                          │ SQL Queries
+                          ▼
+┌──────────────────────────────────────────────────────────┐
+│                   MySQL DATABASE                          │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐    │
+│  │ students │ │equipment │ │  issue   │ │maintenance│   │
+│  │          │ │          │ │ records  │ │  records  │   │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘    │
+└──────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2>5. Database Schema</h2>
+<h3>5.1 Tables Overview</h3>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>students</code></td>
+<td>Student information and department details</td>
+</tr>
+<tr>
+<td><code>staff</code></td>
+<td>Administrator and lab assistant accounts</td>
+</tr>
+<tr>
+<td><code>equipment</code></td>
+<td>Laboratory equipment inventory</td>
+</tr>
+<tr>
+<td><code>issue_records</code></td>
+<td>Equipment borrowing transactions</td>
+</tr>
+<tr>
+<td><code>maintenance_records</code></td>
+<td>Equipment repair and maintenance logs</td>
+</tr>
+<tr>
+<td><code>experiments</code></td>
+<td>Lab experiment catalog</td>
+</tr>
+</tbody>
+</table>
+<h3>5.2 Entity Relationship</h3>
+<ul>
+<li><strong>Students</strong> borrow <strong>Equipment</strong> → creates <strong>Issue Records</strong></li>
+<li><strong>Staff</strong> manages <strong>Equipment</strong> and <strong>Maintenance Records</strong></li>
+<li><strong>Equipment</strong> can have multiple <strong>Maintenance Records</strong></li>
+</ul>
+<hr />
+<h2>6. Modules &amp; Features</h2>
+<h3>6.1 Authentication Module</h3>
+<ul>
+<li>Secure staff login with session management</li>
+<li>Role-based access (Admin, Lab Assistant)</li>
+<li>Session timeout after 2 hours</li>
+</ul>
+<h3>6.2 Dashboard</h3>
+<ul>
+<li>Overview statistics (total equipment, students, active issues)</li>
+<li>Recent issue/return activities</li>
+<li>Overdue items alerts</li>
+<li>Low stock warnings</li>
+<li>Pending maintenance notifications</li>
+</ul>
+<h3>6.3 Inventory Management</h3>
+<ul>
+<li>Add, edit, delete equipment</li>
+<li>Category-wise filtering</li>
+<li>Search functionality</li>
+<li>Track quantity (total vs available)</li>
+<li>Condition status monitoring (Good/Fair/Damaged)</li>
+</ul>
+<h3>6.4 Issue &amp; Return Module</h3>
+<ul>
+<li>Issue equipment to students</li>
+<li>Set expected return dates</li>
+<li>Track active issues</li>
+<li>Process equipment returns</li>
+<li>Automatic quantity updates</li>
+</ul>
+<h3>6.5 Student Management</h3>
+<ul>
+<li>Add, edit, delete student records</li>
+<li>Search by name, ID, or department</li>
+<li>View complete borrowing history</li>
+</ul>
+<h3>6.6 Maintenance Module</h3>
+<ul>
+<li>Log equipment issues</li>
+<li>Track repair status (Pending/In Progress/Completed)</li>
+<li>Record repair costs</li>
+<li>Add repair notes</li>
+</ul>
+<h3>6.7 Reports &amp; Analytics</h3>
+<ul>
+<li>Inventory summary report</li>
+<li>Equipment usage statistics</li>
+<li>Student usage report</li>
+<li>Maintenance cost report</li>
+</ul>
+<hr />
+<h2>7. Project Structure</h2>
+<pre><code>lohit's project/
+├── app.py                  # Main Flask application
+├── config.py               # Configuration settings
+├── requirements.txt        # Python dependencies
+├── setup_database.py       # Database initialization
+├── sju_logo.jpg           # College logo
+│
+├── database/
+│   ├── schema.sql         # Database schema
+│   └── db_helper.py       # Database connection helper
+│
+├── models/
+│   ├── student.py         # Student model
+│   ├── equipment.py       # Equipment model
+│   ├── issue_return.py    # Issue/Return model
+│   ├── maintenance.py     # Maintenance model
+│   └── reports.py         # Reports model
+│
+├── static/
+│   ├── css/
+│   │   └── style.css      # Stylesheet
+│   ├── js/
+│   │   └── main.js        # JavaScript
+│   └── sju_logo.jpg       # Logo for web pages
+│
+└── templates/
+    ├── base.html              # Base template
+    ├── login.html             # Login page
+    ├── dashboard.html         # Dashboard
+    ├── dashboard_layout.html  # Dashboard layout wrapper
+    ├── inventory.html         # Inventory page
+    ├── issue_equipment.html   # Issue/Return page
+    ├── students.html          # Student management
+    ├── student_history.html   # Student history
+    ├── maintenance.html       # Maintenance page
+    └── reports.html           # Reports page
+</code></pre>
+<hr />
+<h2>8. Screenshots</h2>
+<p><em>(Add screenshots of each module here)</em></p>
+<ul>
+<li>Login Page</li>
+<li>Dashboard</li>
+<li>Inventory Management</li>
+<li>Issue &amp; Return</li>
+<li>Student Management</li>
+<li>Maintenance</li>
+<li>Reports</li>
+</ul>
+<hr />
+<h2>9. Future Enhancements</h2>
+<ol>
+<li><strong>Email Notifications</strong> - Send reminders for overdue items</li>
+<li><strong>Barcode/QR Scanning</strong> - Quick equipment identification</li>
+<li><strong>Mobile App</strong> - Access from mobile devices</li>
+<li><strong>Export Reports</strong> - PDF and Excel export functionality</li>
+<li><strong>Reservation System</strong> - Pre-book equipment for experiments</li>
+<li><strong>Equipment Images</strong> - Visual identification of items</li>
+</ol>
+<hr />
+<h2>10. Conclusion</h2>
+<p>The Automated Electronics Laboratory Management System successfully digitizes laboratory operations, providing real-time tracking, efficient record management, and valuable analytics. This system reduces manual effort, minimizes equipment loss, and improves overall laboratory efficiency.</p>
+<hr />
+<h2>11. References</h2>
+<ul>
+<li>Flask Documentation: https://flask.palletsprojects.com/</li>
+<li>MySQL Documentation: https://dev.mysql.com/doc/</li>
+<li>Font Awesome Icons: https://fontawesome.com/</li>
+<li>Google Fonts: https://fonts.google.com/</li>
+</ul>
+<hr />
+<p><strong>Developed for:</strong> St. Joseph's University (SJU)
+<strong>Academic Year:</strong> 2025-2026</p>
+</body>
+</html>
