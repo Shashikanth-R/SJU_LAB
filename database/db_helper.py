@@ -2,8 +2,9 @@
 Database Helper Module
 Handles all database connections and operations for PostgreSQL
 """
-
+import os
 import psycopg2
+
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
 from config import DB_CONFIG
@@ -15,16 +16,19 @@ class DatabaseHelper:
     def connect(self):
         """Establish database connection"""
         try:
-            # psycopg2 uses different parameter names or a connection string
-            # We'll map our DB_CONFIG keys to what psycopg2 expects
-            self.connection = psycopg2.connect(
-                host=DB_CONFIG['host'],
-                user=DB_CONFIG['user'],
-                password=DB_CONFIG['password'],
-                database=DB_CONFIG['database']
-            )
+            database_url = os.environ.get('DATABASE_URL')
+            if database_url:
+                self.connection = psycopg2.connect(database_url)
+            else:
+                self.connection = psycopg2.connect(
+                    host=DB_CONFIG['host'],
+                    user=DB_CONFIG['user'],
+                    password=DB_CONFIG['password'],
+                    database=DB_CONFIG['database']
+                )
             return True
         except Error as e:
+
             print(f"Database connection error: {e}")
             return False
     
